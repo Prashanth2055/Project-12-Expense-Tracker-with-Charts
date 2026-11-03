@@ -1,5 +1,16 @@
 import {PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer} from 'recharts'
 
+interface Expense {
+  id: number;
+  date: string;
+  note: string;
+  category: string;
+  amount: number | null;
+}
+
+interface ExpensePieChartProps {
+  data: Expense[];
+}
 
 const COLORS = [
   "#0088FE",
@@ -10,7 +21,7 @@ const COLORS = [
   "#EC4899",
 ];
 
-function ExpensePieChart({data}) {
+function ExpensePieChart({data} : ExpensePieChartProps) {
   return (
     <div className="w-full max-w-xl rounded-xl bg-white p-5 shadow-md">
       <h2 className="mb-4 text-xl font-bold text-gray-800">
