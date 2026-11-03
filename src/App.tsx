@@ -357,9 +357,9 @@ function App() {
                   </button>
 
                   <button
-                    onClick={() => {handleDelete(deleteId)
+                    onClick={() => { if(deleteId !== null){handleDelete(deleteId)
                       setDeleteExpenseCard(false)
-                    }}
+                    }}}
                     className="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg"
                   >
                     Detete
