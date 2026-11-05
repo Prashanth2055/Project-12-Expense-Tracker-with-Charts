@@ -42,6 +42,21 @@ function App() {
     "Others",
   ];
 
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ]
+
   const formatDate = (date: string) => {
     if (!date) return "";
 
@@ -68,6 +83,7 @@ function App() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedMonth, setSelectedMonth] = useState("All");
 
   const handleSort = (column: "date" | "note" | "amount") => {
     if (sortColumn === column) {
@@ -84,6 +100,12 @@ function App() {
     if (selectedCategory !== "All") {
       result = result.filter(
         (expense) => expense.category === selectedCategory
+      );
+    }
+
+    if (selectedMonth !== "All") {
+      result = result.filter(
+        (expense) => expense.date.split("-")[1] === selectedMonth
       );
     }
 
@@ -108,7 +130,7 @@ function App() {
     }
 
     return result;
-  }, [data, selectedCategory, sortColumn, sortDirection]);
+  }, [data, selectedCategory, selectedMonth, sortColumn, sortDirection]);
 
   const handleExpense = () => {
     if (!formData.date) {
@@ -125,16 +147,19 @@ function App() {
 
     if (
       !formData.amount ||
-      formData.amount === null ||
-      formData.amount <= 0
+      formData.amount === null
     ) {
       return toast.error("Please enter the amount");
+    }
+
+    if (formData.amount <= 0) {
+      return toast.error("Please enter a valid amount")
     }
 
     if (formData.id !== 0) {
       setData((prev) =>
         prev.map((expense) =>
-          expense.id === formData.id ? formData : expense
+          expense.id === formData.id ? { ...formData, amount: Number(formData.amount) } : expense
         )
       );
 
@@ -194,6 +219,11 @@ function App() {
   const handleDelete = (id: number) => {
     setData((prev) => prev.filter((expense) => expense.id !== id));
     setDeleteId(null)
+  };
+
+  const handleClearFilters = () => {
+    setSelectedCategory("All");
+    setSelectedMonth("All");
   };
 
   return (
@@ -345,28 +375,31 @@ function App() {
           {
             deleteExpenseCard && (
               <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/70 p-3 sm:p-4">
-              <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
-              <div className="flex flex-col items-center justify-center">
-                <p className="block mb-2 font-medium mt-3">Are you sure you want to delete this expense ?</p>
-              <div className="mt-4">
-              <button
-                    onClick={() => setDeleteExpenseCard(false)}
-                    className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg mr-2"
-                  >
-                    Cancel
-                  </button>
+                <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                  <div className="flex flex-col items-center justify-center">
+                    <p className="block mb-2 font-medium mt-3">Are you sure you want to delete this expense ?</p>
+                    <div className="mt-4">
+                      <button
+                        onClick={() => setDeleteExpenseCard(false)}
+                        className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg mr-2"
+                      >
+                        Cancel
+                      </button>
 
-                  <button
-                    onClick={() => { if(deleteId !== null){handleDelete(deleteId)
-                      setDeleteExpenseCard(false)
-                    }}}
-                    className="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg"
-                  >
-                    Detete
-                  </button>
+                      <button
+                        onClick={() => {
+                          if (deleteId !== null) {
+                            handleDelete(deleteId)
+                            setDeleteExpenseCard(false)
+                          }
+                        }}
+                        className="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg"
+                      >
+                        Detete
+                      </button>
+                    </div>
                   </div>
-                  </div>
-              </div>
+                </div>
               </div>
             )
           }
@@ -374,7 +407,7 @@ function App() {
 
         <div className="w-full flex flex-col xl:flex-row gap-5 mt-6 sm:mt-10">
           <div className="w-full flex xl:w-2/5 min-w-0 justify-center">
-            <ExpensePieChart data={data} />
+            <ExpensePieChart data={filteredExpenses} />
           </div>
 
           <div className="w-full min-w-0 xl:w-3/5">
@@ -393,6 +426,28 @@ function App() {
                   </option>
                 ))}
               </select>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <label className="font-semibold">Filter Month:</label>
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="border rounded-lg p-2 bg-white"
+                >
+                  <option value="All">All Months</option>
+
+                  {months.map((month, index) => (
+                    <option key={month} value={String(index + 1).padStart(2, "0")}>
+                      {month}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={handleClearFilters}
+                  className="bg-red-400 text-white px-4 py-2 rounded-lg"
+                >
+                  Clear Filters
+                </button>
+              </div>
             </div>
 
             <div className="w-full overflow-x-auto rounded-lg shadow-sm">
@@ -467,8 +522,10 @@ function App() {
                         </button>
 
                         <button
-                          onClick={() => { setDeleteExpenseCard(true) 
-                            setDeleteId(expense.id)}}
+                          onClick={() => {
+                            setDeleteExpenseCard(true)
+                            setDeleteId(expense.id)
+                          }}
                           className="text-red-600"
                         >
                           <MdDelete />
