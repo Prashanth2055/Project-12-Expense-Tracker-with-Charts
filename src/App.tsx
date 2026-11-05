@@ -442,7 +442,7 @@ function App() {
                   ))}
                 </select>
                 <button
-                  onClick={handleClearFilters}
+                  onClick={() => handleClearFilters()}
                   className="bg-red-400 text-white px-4 py-2 rounded-lg"
                 >
                   Clear Filters
@@ -492,47 +492,58 @@ function App() {
                 </thead>
 
                 <tbody>
-                  {filteredExpenses.map((expense) => (
-                    <tr
-                      key={expense.id}
-                      className="border-b hover:bg-gray-50"
-                    >
-                      <td className="px-4 py-3 text-sm sm:text-md font-medium text-gray-600 whitespace-nowrap">
-                        {formatDate(expense.date)}
-                      </td>
+                  {filteredExpenses.length > 0 ? (
+                    filteredExpenses.map((expense) => (
+                      <tr
+                        key={expense.id}
+                        className="border-b hover:bg-gray-50"
+                      >
+                        <td className="px-4 py-3 text-sm sm:text-md font-medium text-gray-600 whitespace-nowrap">
+                          {formatDate(expense.date)}
+                        </td>
 
-                      <td className="px-4 py-3 text-sm sm:text-md font-medium text-gray-600 whitespace-nowrap">
-                        {expense.note}
-                      </td>
+                        <td className="px-4 py-3 text-sm sm:text-md font-medium text-gray-600 whitespace-nowrap">
+                          {expense.note}
+                        </td>
 
-                      <td className="px-4 py-3 text-sm sm:text-md font-medium text-gray-600 whitespace-nowrap">
-                        {expense.category}
-                      </td>
+                        <td className="px-4 py-3 text-sm sm:text-md font-medium text-gray-600 whitespace-nowrap">
+                          {expense.category}
+                        </td>
 
-                      <td className="px-4 py-3 text-sm sm:text-md font-medium text-gray-600 whitespace-nowrap">
-                        {expense.amount}
-                      </td>
+                        <td className="px-4 py-3 text-sm sm:text-md font-medium text-gray-600 whitespace-nowrap">
+                          {expense.amount}
+                        </td>
 
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <button
-                          onClick={() => handleEdit(expense.id)}
-                          className="mr-2 text-blue-600"
-                        >
-                          <FaPen />
-                        </button>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <button
+                            onClick={() => handleEdit(expense.id)}
+                            className="mr-2 text-blue-600"
+                          >
+                            <FaPen />
+                          </button>
 
-                        <button
-                          onClick={() => {
-                            setDeleteExpenseCard(true)
-                            setDeleteId(expense.id)
-                          }}
-                          className="text-red-600"
-                        >
-                          <MdDelete />
-                        </button>
+                          <button
+                            onClick={() => {
+                              setDeleteExpenseCard(true)
+                              setDeleteId(expense.id)
+                            }}
+                            className="text-red-600"
+                          >
+                            <MdDelete />
+                          </button>
+                        </td>
+                      </tr>
+                    ))) : (
+                    <tr>
+                      <td
+                        colSpan={5}
+                        className="text-center py-8 text-gray-500 font-semibold"
+                      >
+                        No data available
                       </td>
                     </tr>
-                  ))}
+                  )
+                  }
                 </tbody>
               </table>
             </div>
